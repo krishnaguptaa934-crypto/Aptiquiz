@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AptiQuiz | Live Multiplayer Aptitude Battle Arena</title>
+  <meta name="description" content="AptiQuiz - Aptitude practice re-engineered as a live multiplayer game for campus hackathons and competitive placements.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Background Animated Mesh Glows -->
+  <div class="bg-glow-orb orb-1"></div>
+  <div class="bg-glow-orb orb-2"></div>
+  <div class="bg-glow-orb orb-3"></div>
+  <div class="bg-grid-overlay"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Confetti Canvas for Winners -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <!-- Logo Brand -->
+      <div class="brand-wrapper" id="nav-brand" role="button" tabindex="0">
+        <div class="logo-icon-box">
+          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text-col">
+          <div class="brand-title">Apti<span>Quiz</span></div>
+          <span class="live-pill-pulse">
+            <span class="pulse-dot"></span>
+            LIVE ARENA
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="main-nav" aria-label="Main Navigation">
+        <button class="nav-tab active" data-target="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </button>
+        <button class="nav-tab" data-target="quiz">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          <span>Live Battle</span>
+        </button>
+        <button class="nav-tab" data-target="leaderboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          <span>Leaderboard</span>
+        </button>
+        <button class="nav-tab" data-target="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <span>Dashboard</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Controls -->
+      <div class="header-actions">
+        <!-- Room Tag Indicator -->
+        <div class="active-room-chip" id="header-room-chip" title="Click to copy active room code">
+          <span class="room-label">ROOM:</span>
+          <span class="room-val" id="header-room-val">APTI-7489</span>
+          <svg class="copy-tiny-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        </div>
+
+        <!-- Sound FX Audio Toggle -->
+        <button class="btn-icon" id="sound-toggle-btn" title="Toggle Sound FX (Web Audio)">
+          <svg id="sound-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="sound-off-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="22" y2="22"/><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 .5 10.3"/></svg>
+        </button>
+
+        <!-- Current User Profile Pill -->
+        <div class="user-profile-pill" id="user-profile-pill">
+          <div class="avatar-ring">
+            <span class="avatar-letter">A</span>
+          </div>
+          <div class="user-pill-meta">
+            <span class="user-name">Alex Verma</span>
+            <span class="user-college">IIT Bombay</span>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Hamburger -->
+        <button class="btn-icon mobile-menu-toggle" id="mobile-toggle" aria-label="Toggle navigation menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="main-content">
+
+    <!-- ================================================================ -->
+    <!-- SCREEN 1: HOME PAGE -->
+    <!-- ================================================================ -->
+    <section id="screen-home" class="view-screen active">
+      
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-badge">
+          <span class="badge-icon">⚡</span>
+          <span>Inter-College Aptitude Championship 2026</span>
+          <span class="badge-tag">HACKATHON EDITION</span>
+        </div>
+
+        <h1 class="hero-title">
+          Think Fast. <br>
+          <span class="gradient-text">Score Faster.</span>
+        </h1>
+
+        <p class="hero-description">
+          Aptitude practice re-engineered as an exhilarating live multiplayer battle.
+          Compete head-to-head with campus peers in real-time speed rounds, sharpen your placement instincts,
+          and claim the #1 college ranking on the leaderboard.
+        </p>
+
+        <!-- Room Action Controls -->
+        <div class="hero-cta-group">
+          <button class="btn-primary" id="btn-quick-join">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Join Live Quiz</span>
+          </button>
+          
+          <button class="btn-secondary" id="btn-open-create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Create Room</span>
+          </button>
+
+          <!-- Current Active Room Card with Quick Copy -->
+          <div class="quick-room-card">
+            <div class="room-code-tag">ACTIVE ROOM</div>
+            <div class="room-code-display" id="home-room-code">APTI-7489</div>
+            <button class="btn-copy-code" id="btn-copy-room" title="Copy Room Code">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Battle Rules & Highlights Bar -->
+        <div class="stats-ribbon">
+          <div class="stat-pill">
+            <div class="stat-icon-wrapper cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="stat-meta">
+              <span class="stat-value">50</span>
+              <span class="stat-sub">Max Players</span>
+            </div>
+          </div>
+
+          <div class="stat-pill">
+            <div class="stat-icon-wrapper amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-meta">
+              <span class="stat-value">10 sec</span>
+              <span class="stat-sub">Per Question</span>
+            </div>
+          </div>
+
+          <div class="stat-pill">
+            <div class="stat-icon-wrapper purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <div class="stat-meta">
+              <span class="stat-value">+100</span>
+              <span class="stat-sub">Base Points</span>
+            </div>
+          </div>
+
+          <div class="stat-pill">
+            <div class="stat-icon-wrapper green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            </div>
+            <div class="stat-meta">
+              <span class="stat-value">Campus</span>
+              <span class="stat-sub">League Ranks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Campus Activity Ticker -->
+      <div class="live-ticker-bar">
+        <div class="ticker-label">
+          <span class="pulse-dot"></span>
+          <span>LIVE TICKER</span>
+        </div>
+        <div class="ticker-content" id="live-ticker-track">
+          <span class="ticker-item">🔥 <strong>Aarav</strong> (IIT Delhi) answered in 1.4s (+186 pts)</span>
+          <span class="ticker-sep">•</span>
+          <span class="ticker-item">⚡ <strong>BITS Pilani</strong> took #1 campus spot</span>
+          <span class="ticker-sep">•</span>
+          <span class="ticker-item">🎯 <strong>Sneha</strong> unlocked 5-Streak Fire bonus!</span>
+          <span class="ticker-sep">•</span>
+          <span class="ticker-item">🏆 <strong>Room APTI-7489</strong>: 42 contestants currently battling</span>
+        </div>
+      </div>
+
+      <!-- Categories Section -->
+      <div class="section-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Battle Categories</h2>
+            <p class="section-subtitle">Master core placement test modules with competitive speed drills.</p>
+          </div>
+          <button class="btn-text-action" id="btn-start-all-categories">
+            <span>Play Mixed Arena (All Topics)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <div class="categories-grid">
+          <!-- Category 1 -->
+          <div class="category-card" data-category="Quantitative Aptitude">
+            <div class="category-header">
+              <div class="category-badge-icon quant">📊</div>
+              <span class="category-question-count">10 Questions</span>
+            </div>
+            <h3 class="category-title">Quantitative Aptitude</h3>
+            <p class="category-desc">Speed, distance & time, work equivalence, percentages, profit & loss, and mental math shortcuts.</p>
+            <div class="category-tags">
+              <span class="tag">Train Problems</span>
+              <span class="tag">Ratios</span>
+              <span class="tag">Work-Time</span>
+            </div>
+            <button class="btn-category-start" data-category="Quantitative Aptitude">
+              <span>Start Battle</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Category 2 -->
+          <div class="category-card" data-category="Logical Reasoning">
+            <div class="category-header">
+              <div class="category-badge-icon logical">🧩</div>
+              <span class="category-question-count">10 Questions</span>
+            </div>
+            <h3 class="category-title">Logical Reasoning</h3>
+            <p class="category-desc">Pattern identification, number sequences, syllogisms, blood relations, and coding-decoding puzzles.</p>
+            <div class="category-tags">
+              <span class="tag">Series</span>
+              <span class="tag">Deductions</span>
+              <span class="tag">Puzzles</span>
+            </div>
+            <button class="btn-category-start" data-category="Logical Reasoning">
+              <span>Start Battle</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Category 3 -->
+          <div class="category-card" data-category="Data Interpretation">
+            <div class="category-header">
+              <div class="category-badge-icon di">📈</div>
+              <span class="category-question-count">10 Questions</span>
+            </div>
+            <h3 class="category-title">Data Interpretation</h3>
+            <p class="category-desc">Rapid chart analysis, tabular caselets, pie slice ratios, trends, and business data synthesis.</p>
+            <div class="category-tags">
+              <span class="tag">Bar Graphs</span>
+              <span class="tag">Percentages</span>
+              <span class="tag">Tables</span>
+            </div>
+            <button class="btn-category-start" data-category="Data Interpretation">
+              <span>Start Battle</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Category 4 -->
+          <div class="category-card" data-category="Verbal Ability">
+            <div class="category-header">
+              <div class="category-badge-icon verbal">📚</div>
+              <span class="category-question-count">10 Questions</span>
+            </div>
+            <h3 class="category-title">Verbal Ability</h3>
+            <p class="category-desc">Grammar precision, error spotters, vocabulary in context, reading speed, and para-jumble ordering.</p>
+            <div class="category-tags">
+              <span class="tag">Vocabulary</span>
+              <span class="tag">Sentence Fix</span>
+              <span class="tag">Verbal Logic</span>
+            </div>
+            <button class="btn-category-start" data-category="Verbal Ability">
+              <span>Start Battle</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- How Live Multiplayer Scoring Works -->
+      <div class="section-container feature-how-section">
+        <h2 class="section-title text-center">Multiplayer Game Mechanics</h2>
+        <p class="section-subtitle text-center">Engineered to simulate high-pressure campus placement hackathons.</p>
+
+        <div class="mechanics-grid">
+          <div class="mechanic-card">
+            <div class="mechanic-num">01</div>
+            <h4>10-Second Lockdown</h4>
+            <p>Every question features a strict 10s countdown. Quick instincts simulate high-speed technical screeners.</p>
+          </div>
+
+          <div class="mechanic-card">
+            <div class="mechanic-num">02</div>
+            <h4>Velocity Multipliers</h4>
+            <p>Score 100 Base Points for a correct answer + up to 100 extra speed bonus points for locking within 1–3 seconds.</p>
+          </div>
+
+          <div class="mechanic-card">
+            <div class="mechanic-num">03</div>
+            <h4>Live Competitor Feed</h4>
+            <p>Watch rival college participants lock their responses in real-time as dynamic podium rankings shuffle on the fly.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SCREEN 2: LIVE QUIZ PAGE -->
+    <!-- ================================================================ -->
+    <section id="screen-quiz" class="view-screen">
+      <div class="quiz-arena-layout">
+
+        <!-- Main Question & Answering Battle Area -->
+        <div class="quiz-main-area">
+
+          <!-- Battle Top Status Bar -->
+          <div class="quiz-top-bar card-glass">
+            <div class="q-meta-left">
+              <div class="q-room-info">
+                <span class="pulse-dot green"></span>
+                <span class="room-pill-live" id="quiz-room-tag">ROOM APTI-7489</span>
+                <span class="q-players-online" id="quiz-players-online">👥 38 Players In Game</span>
+              </div>
+              <div class="q-category-pill" id="quiz-category-pill">Quantitative Aptitude</div>
+            </div>
+
+            <!-- Quiz Stage & User Score / Streak -->
+            <div class="q-meta-right">
+              <div class="q-score-stat">
+                <span class="score-label">YOUR SCORE</span>
+                <span class="score-number" id="quiz-user-score">0</span>
+              </div>
+              <div class="q-streak-badge" id="quiz-streak-badge">
+                <span class="streak-flame">🔥</span>
+                <span class="streak-text" id="quiz-streak-count">0x Streak</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress & Timer Hub -->
+          <div class="timer-progress-hub card-glass">
+            <!-- Question Step Indicators -->
+            <div class="progress-bar-wrap">
+              <div class="progress-meta">
+                <span class="progress-title">Round Progress</span>
+                <span class="progress-ratio" id="quiz-progress-text">Question 01 of 10</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="quiz-progress-bar" style="width: 10%;"></div>
+              </div>
+            </div>
+
+            <!-- 10-Second Circular Countdown Timer -->
+            <div class="countdown-radial-container">
+              <div class="radial-timer-box" id="radial-timer-box">
+                <svg class="radial-svg" viewBox="0 0 100 100">
+                  <circle class="radial-bg" cx="50" cy="50" r="42"></circle>
+                  <circle class="radial-bar" id="radial-bar" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="radial-center-text">
+                  <span class="seconds-digit" id="timer-number">10</span>
+                  <span class="seconds-unit">SEC</span>
+                </div>
+              </div>
+              <div class="timer-speed-bonus" id="speed-bonus-indicator">
+                <span class="bonus-flash">⚡ Max Bonus: +100 pts</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCQ Question Card -->
+          <div class="question-card card-glass" id="question-card">
+            <div class="question-header">
+              <span class="q-badge" id="question-index-badge">QUESTION 01</span>
+              <span class="q-diff-badge" id="question-diff-badge">⚡ Medium • 10s Round</span>
+            </div>
+
+            <h2 class="question-prompt" id="question-prompt-text">
+              If a train travels 360 km in 4 hours, what is its average speed?
+            </h2>
+
+            <!-- Options Grid -->
+            <div class="options-grid" id="options-grid">
+              <!-- Option A -->
+              <button class="option-btn" data-index="0">
+                <div class="option-letter">A</div>
+                <div class="option-text">80 km/h</div>
+                <div class="option-status-icon"></div>
+              </button>
+              <!-- Option B -->
+              <button class="option-btn" data-index="1">
+                <div class="option-letter">B</div>
+                <div class="option-text">90 km/h</div>
+                <div class="option-status-icon"></div>
+              </button>
+              <!-- Option C -->
+              <button class="option-btn" data-index="2">
+                <div class="option-letter">C</div>
+                <div class="option-text">100 km/h</div>
+                <div class="option-status-icon"></div>
+              </button>
+              <!-- Option D -->
+              <button class="option-btn" data-index="3">
+                <div class="option-letter">D</div>
+                <div class="option-text">120 km/h</div>
+                <div class="option-status-icon"></div>
+              </button>
+            </div>
+
+            <!-- Lock Answer Button & Action Row -->
+            <div class="question-actions-row">
+              <div class="lock-hint" id="lock-hint-text">Select an option to lock your submission</div>
+              <button class="btn-lock-answer" id="btn-lock-answer" disabled>
+                <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Lock Answer</span>
+              </button>
+            </div>
+
+            <!-- Instant Feedback & Logic Explanation Banner (reveals upon lock/timeout) -->
+            <div class="feedback-banner hidden" id="feedback-banner">
+              <div class="feedback-status-box" id="feedback-status-box">
+                <div class="feedback-icon" id="feedback-icon">✓</div>
+                <div class="feedback-copy">
+                  <h4 id="feedback-headline">Correct! Lightning Reflexes!</h4>
+                  <p id="feedback-points-awarded">+184 Points (+84 Speed Bonus)</p>
+                </div>
+              </div>
+              <div class="feedback-explanation" id="feedback-explanation">
+                <strong>Solution Formula:</strong> Speed = Distance / Time = 360 km / 4 hrs = 90 km/h.
+              </div>
+              <div class="feedback-next-wrap">
+                <button class="btn-next-question" id="btn-next-question">
+                  <span>Next Question</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right Side: Live Multi-Player Arena & Realtime Rankings -->
+        <aside class="quiz-sidebar">
+
+          <!-- Live Dynamic Match Ranking -->
+          <div class="sidebar-panel card-glass">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="live-dot-glow"></span>
+                <h3 class="panel-title">Live Arena Standings</h3>
+              </div>
+              <span class="live-sub-tag">Round 1</span>
+            </div>
+
+            <div class="live-ranking-list" id="live-ranking-list">
+              <!-- Dynamically populated live players with real-time score bumps -->
+            </div>
+          </div>
+
+          <!-- Real-Time Opponent Action Feed -->
+          <div class="sidebar-panel card-glass">
+            <div class="panel-header">
+              <h3 class="panel-title">Live Activity Feed</h3>
+              <span class="feed-pulse-icon">⚡</span>
+            </div>
+
+            <div class="live-activity-feed" id="live-activity-feed">
+              <!-- Realtime simulated player lock events -->
+            </div>
+          </div>
+
+          <!-- Hackathon Quick Controls -->
+          <div class="sidebar-panel card-glass test-controls-panel">
+            <div class="panel-header">
+              <h4 class="panel-title-small">Demo Helper Controls</h4>
+            </div>
+            <div class="demo-btn-group">
+              <button class="btn-demo-action" id="btn-demo-prev">⏮ Prev Q</button>
+              <button class="btn-demo-action" id="btn-demo-next">Skip Q ⏭</button>
+              <button class="btn-demo-action danger" id="btn-demo-restart">Restart Match 🔄</button>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SCREEN 3: QUIZ RESULTS / VICTORY PODIUM -->
+    <!-- ================================================================ -->
+    <section id="screen-results" class="view-screen">
+      <div class="results-container">
+
+        <!-- Result Hero Banner -->
+        <div class="results-hero card-glass">
+          <div class="trophy-glow-wrapper">
+            <div class="results-trophy-emoji">🏆</div>
+          </div>
+          <span class="results-badge" id="results-headline-badge">ROUND COMPLETED</span>
+          <h2 class="results-title" id="results-headline-title">Phenomenal Performance!</h2>
+          <p class="results-subtitle" id="results-headline-sub">
+            You completed all 10 aptitude questions and secured a top spot on the live campus ranking.
+          </p>
+
+          <!-- Core Score Cards Grid -->
+          <div class="results-stats-row">
+            <div class="result-metric-card">
+              <span class="metric-label">FINAL SCORE</span>
+              <span class="metric-val text-cyan" id="res-final-score">1,780</span>
+              <span class="metric-foot">pts</span>
+            </div>
+
+            <div class="result-metric-card highlight-card">
+              <span class="metric-label">CAMPUS RANK</span>
+              <span class="metric-val text-gold" id="res-final-rank">#2</span>
+              <span class="metric-foot">of 38 contestants</span>
+            </div>
+
+            <div class="result-metric-card">
+              <span class="metric-label">ACCURACY</span>
+              <span class="metric-val text-green" id="res-final-accuracy">90%</span>
+              <span class="metric-foot">9 / 10 Correct</span>
+            </div>
+
+            <div class="result-metric-card">
+              <span class="metric-label">AVG RESPONSE</span>
+              <span class="metric-val text-purple" id="res-final-speed">2.8s</span>
+              <span class="metric-foot">per question</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="results-cta-row">
+            <button class="btn-primary" id="btn-results-restart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              <span>Play Another Round</span>
+            </button>
+            <button class="btn-secondary" id="btn-results-leaderboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/></svg>
+              <span>View Full Leaderboard</span>
+            </button>
+            <button class="btn-outline" id="btn-results-dashboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/></svg>
+              <span>View Analytics</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Match Podium Display -->
+        <div class="podium-section-wrap card-glass">
+          <h3 class="podium-title text-center">Room APTI-7489 Podium</h3>
+          <div class="podium-container" id="results-podium-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Question Breakdown Accordion / List -->
+        <div class="breakdown-card card-glass">
+          <div class="breakdown-header">
+            <h3>Question-by-Question Review</h3>
+            <span class="breakdown-note">Inspect your answers & speed breakdowns</span>
+          </div>
+          <div class="breakdown-list" id="results-breakdown-list">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SCREEN 4: LIVE LEADERBOARD -->
+    <!-- ================================================================ -->
+    <section id="screen-leaderboard" class="view-screen">
+      <div class="leaderboard-container">
+
+        <!-- Leaderboard Hero Header -->
+        <div class="lead-hero-header">
+          <div>
+            <div class="hero-badge">
+              <span class="badge-icon">🏆</span>
+              <span>Global Campus Standings</span>
+            </div>
+            <h1 class="lead-page-title">Live College Leaderboard</h1>
+            <p class="lead-page-sub">Top performers ranked by points, lightning accuracy, and speed multipliers across colleges.</p>
+          </div>
+
+          <!-- Leaderboard Scope Filter Pills -->
+          <div class="lead-filter-tabs">
+            <button class="lead-filter-btn active" data-filter="all">All Campuses</button>
+            <button class="lead-filter-btn" data-filter="colleges">Top Colleges</button>
+            <button class="lead-filter-btn" data-filter="weekly">Weekly League</button>
+          </div>
+        </div>
+
+        <!-- Top 3 Podium Cards -->
+        <div class="top3-podium-wrapper" id="top3-podium-cards">
+          <!-- 2nd Place Silver -->
+          <div class="podium-card silver-card" id="podium-2">
+            <div class="podium-crown">🥈</div>
+            <div class="podium-avatar-circle silver-glow">
+              <span>S</span>
+            </div>
+            <h4 class="podium-player-name">Sneha Rao</h4>
+            <span class="podium-college">BITS Pilani</span>
+            <div class="podium-score-pill">
+              <span class="val">1,820</span>
+              <span class="unit">pts</span>
+            </div>
+            <div class="podium-acc-badge">90% Accuracy • 12 Streak</div>
+            <div class="podium-pedestal p-silver">#2</div>
+          </div>
+
+          <!-- 1st Place Gold Champion -->
+          <div class="podium-card gold-card" id="podium-1">
+            <div class="podium-crown gold-crown">👑</div>
+            <div class="podium-avatar-circle gold-glow">
+              <span>A</span>
+            </div>
+            <h4 class="podium-player-name">Aarav Sharma</h4>
+            <span class="podium-college">IIT Delhi</span>
+            <div class="podium-score-pill gold-pill">
+              <span class="val">1,940</span>
+              <span class="unit">pts</span>
+            </div>
+            <div class="podium-acc-badge gold-badge">100% Accuracy • 18 Streak</div>
+            <div class="podium-pedestal p-gold">#1 CHAMPION</div>
+          </div>
+
+          <!-- 3rd Place Bronze -->
+          <div class="podium-card bronze-card" id="podium-3">
+            <div class="podium-crown">🥉</div>
+            <div class="podium-avatar-circle bronze-glow">
+              <span>R</span>
+            </div>
+            <h4 class="podium-player-name">Rohan Nair</h4>
+            <span class="podium-college">NIT Trichy</span>
+            <div class="podium-score-pill">
+              <span class="val">1,690</span>
+              <span class="unit">pts</span>
+            </div>
+            <div class="podium-acc-badge">80% Accuracy • 8 Streak</div>
+            <div class="podium-pedestal p-bronze">#3</div>
+          </div>
+        </div>
+
+        <!-- Search & Leaderboard Table -->
+        <div class="leaderboard-table-card card-glass">
+          <div class="table-search-row">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="leaderboard-search" placeholder="Search player or college name...">
+            </div>
+            <div class="table-stats-count" id="leaderboard-count-text">
+              Showing 12 Contenders
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Contender</th>
+                  <th>College</th>
+                  <th>Accuracy</th>
+                  <th>Streak</th>
+                  <th>Status</th>
+                  <th class="text-right">Score</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-table-body">
+                <!-- Dynamically populated with highlighted current user -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SCREEN 5: DASHBOARD & ANALYTICS -->
+    <!-- ================================================================ -->
+    <section id="screen-dashboard" class="view-screen">
+      <div class="dashboard-container">
+
+        <!-- User Profile Hero Bar -->
+        <div class="profile-hero-card card-glass">
+          <div class="profile-hero-left">
+            <div class="profile-avatar-large">
+              <span>AV</span>
+              <span class="status-online-dot"></span>
+            </div>
+            <div class="profile-titles">
+              <div class="profile-name-row">
+                <h2>Alex Verma</h2>
+                <span class="tier-badge">CAMPUS PRO LEAGUE</span>
+              </div>
+              <p class="profile-institution">Computer Science & Engineering • IIT Bombay • 2026 Batch</p>
+              <div class="profile-meta-tags">
+                <span class="meta-tag">⚔️ 18 Battles Fought</span>
+                <span class="meta-tag">🏆 5 Podiums</span>
+                <span class="meta-tag">⚡ 2.8s Speed Record</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-hero-right">
+            <button class="btn-primary" id="btn-dash-start-quiz">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Jump Into Match</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Key Metric Tiles -->
+        <div class="dash-metrics-grid">
+          <!-- Total Score -->
+          <div class="metric-tile card-glass">
+            <div class="metric-tile-header">
+              <span class="metric-title-small">Total Score</span>
+              <div class="metric-icon cyan">⚡</div>
+            </div>
+            <div class="metric-number-big" id="dash-total-score">14,850</div>
+            <div class="metric-trend up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <span>+1,780 this week</span>
+            </div>
+          </div>
+
+          <!-- Overall Accuracy -->
+          <div class="metric-tile card-glass">
+            <div class="metric-tile-header">
+              <span class="metric-title-small">Overall Accuracy</span>
+              <div class="metric-icon green">🎯</div>
+            </div>
+            <div class="metric-number-big" id="dash-accuracy">86.4%</div>
+            <div class="metric-trend up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <span>+4.2% vs Campus Avg</span>
+            </div>
+          </div>
+
+          <!-- Best Streak -->
+          <div class="metric-tile card-glass">
+            <div class="metric-tile-header">
+              <span class="metric-title-small">Best Streak</span>
+              <div class="metric-icon amber">🔥</div>
+            </div>
+            <div class="metric-number-big" id="dash-best-streak">12 Qs</div>
+            <div class="metric-trend text-muted">
+              <span>Personal Best Record</span>
+            </div>
+          </div>
+
+          <!-- Questions Attempted -->
+          <div class="metric-tile card-glass">
+            <div class="metric-tile-header">
+              <span class="metric-title-small">Questions Attempted</span>
+              <div class="metric-icon purple">📊</div>
+            </div>
+            <div class="metric-number-big" id="dash-questions-attempted">180</div>
+            <div class="metric-trend text-muted">
+              <span>Across 4 Core Categories</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts & Category Section -->
+        <div class="dash-charts-grid">
+
+          <!-- Weekly Performance Trend Chart (SVG) -->
+          <div class="chart-card card-glass">
+            <div class="chart-card-header">
+              <div>
+                <h3 class="chart-title">Weekly Performance Chart</h3>
+                <p class="chart-sub">Point progression and battle velocity across the last 7 days</p>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-dot cyan"></span>
+                <span class="legend-text">Points Earned</span>
+              </div>
+            </div>
+
+            <!-- Crisp Interactive SVG Area Chart -->
+            <div class="svg-chart-container">
+              <svg class="performance-svg" viewBox="0 0 600 240" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Grid Horizontal Lines -->
+                <line x1="40" y1="30" x2="570" y2="30" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
+                <line x1="40" y1="80" x2="570" y2="80" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
+                <line x1="40" y1="130" x2="570" y2="130" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
+                <line x1="40" y1="180" x2="570" y2="180" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
+
+                <!-- Left Axis Labels -->
+                <text x="10" y="34" fill="#64748b" font-size="11" font-family="JetBrains Mono">2k</text>
+                <text x="10" y="84" fill="#64748b" font-size="11" font-family="JetBrains Mono">1.5k</text>
+                <text x="10" y="134" fill="#64748b" font-size="11" font-family="JetBrains Mono">1k</text>
+                <text x="10" y="184" fill="#64748b" font-size="11" font-family="JetBrains Mono">500</text>
+
+                <!-- Filled Area Under Curve -->
+                <path d="M 50 160 Q 130 140 210 110 T 370 70 T 450 90 T 550 40 L 550 200 L 50 200 Z" fill="url(#chartGradient)"></path>
+
+                <!-- Smooth Wave Stroke -->
+                <path class="chart-stroke-path" d="M 50 160 Q 130 140 210 110 T 370 70 T 450 90 T 550 40" fill="none" stroke="#00f0ff" stroke-width="3.5" stroke-linecap="round"></path>
+
+                <!-- Data Points with Tooltip Hitboxes -->
+                <g class="chart-point" tabindex="0">
+                  <circle cx="50" cy="160" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="50" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Mon</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="130" cy="140" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="130" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Tue</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="210" cy="110" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="210" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Wed</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="290" cy="85" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="290" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Thu</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="370" cy="70" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="370" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Fri</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="450" cy="90" r="5" fill="#0b0f19" stroke="#00f0ff" stroke-width="3"></circle>
+                  <text x="450" y="222" fill="#94a3b8" font-size="12" text-anchor="middle">Sat</text>
+                </g>
+                <g class="chart-point" tabindex="0">
+                  <circle cx="550" cy="40" r="6" fill="#38bdf8" stroke="#ffffff" stroke-width="3"></circle>
+                  <text x="550" y="222" fill="#38bdf8" font-weight="bold" font-size="12" text-anchor="middle">Sun</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Topic-wise Performance -->
+          <div class="topic-perf-card card-glass">
+            <div class="chart-card-header">
+              <div>
+                <h3 class="chart-title">Topic Proficiency</h3>
+                <p class="chart-sub">Mastery level across key placement topics</p>
+              </div>
+            </div>
+
+            <div class="topic-bars-list">
+              <!-- Topic 1 -->
+              <div class="topic-row">
+                <div class="topic-row-info">
+                  <span class="topic-title">Quantitative Aptitude</span>
+                  <span class="topic-pct text-cyan">88%</span>
+                </div>
+                <div class="topic-track">
+                  <div class="topic-fill quant-fill" style="width: 88%;"></div>
+                </div>
+                <div class="topic-meta">58/65 Qs • Avg 3.1s • High Speed</div>
+              </div>
+
+              <!-- Topic 2 -->
+              <div class="topic-row">
+                <div class="topic-row-info">
+                  <span class="topic-title">Data Interpretation</span>
+                  <span class="topic-pct text-green">92%</span>
+                </div>
+                <div class="topic-track">
+                  <div class="topic-fill di-fill" style="width: 92%;"></div>
+                </div>
+                <div class="topic-meta">42/45 Qs • Avg 4.0s • Master Level</div>
+              </div>
+
+              <!-- Topic 3 -->
+              <div class="topic-row">
+                <div class="topic-row-info">
+                  <span class="topic-title">Logical Reasoning</span>
+                  <span class="topic-pct text-purple">76%</span>
+                </div>
+                <div class="topic-track">
+                  <div class="topic-fill logical-fill" style="width: 76%;"></div>
+                </div>
+                <div class="topic-meta">35/46 Qs • Avg 3.6s • Solid</div>
+              </div>
+
+              <!-- Topic 4 -->
+              <div class="topic-row">
+                <div class="topic-row-info">
+                  <span class="topic-title">Verbal Ability</span>
+                  <span class="topic-pct text-amber">84%</span>
+                </div>
+                <div class="topic-track">
+                  <div class="topic-fill verbal-fill" style="width: 84%;"></div>
+                </div>
+                <div class="topic-meta">26/31 Qs • Avg 2.2s • Swift</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Match History & Badges -->
+        <div class="dash-bottom-grid">
+
+          <!-- Recent Match History -->
+          <div class="history-card card-glass">
+            <h3 class="panel-title">Recent Multiplayer Battles</h3>
+            <div class="history-list">
+              <div class="history-item">
+                <div class="history-left">
+                  <span class="hist-badge victory">VICTORY #1</span>
+                  <div class="hist-text">
+                    <strong>Room APTI-9012</strong>
+                    <span>Quantitative Speed Battle • 42 Players</span>
+                  </div>
+                </div>
+                <div class="history-right">
+                  <span class="hist-points">+1,890 pts</span>
+                  <span class="hist-date">2 hrs ago</span>
+                </div>
+              </div>
+
+              <div class="history-item">
+                <div class="history-left">
+                  <span class="hist-badge silver">PODIUM #2</span>
+                  <div class="hist-text">
+                    <strong>Room APTI-7489</strong>
+                    <span>Mixed Aptitude League • 38 Players</span>
+                  </div>
+                </div>
+                <div class="history-right">
+                  <span class="hist-points">+1,780 pts</span>
+                  <span class="hist-date">Yesterday</span>
+                </div>
+              </div>
+
+              <div class="history-item">
+                <div class="history-left">
+                  <span class="hist-badge bronze">PODIUM #3</span>
+                  <div class="hist-text">
+                    <strong>Room APTI-6120</strong>
+                    <span>Logical & DI Showdown • 50 Players</span>
+                  </div>
+                </div>
+                <div class="history-right">
+                  <span class="hist-points">+1,650 pts</span>
+                  <span class="hist-date">3 days ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Earned Hackathon Badges -->
+          <div class="badges-card card-glass">
+            <h3 class="panel-title">Badges & Achievements</h3>
+            <div class="badges-grid">
+              <div class="badge-item" title="Answered 5 questions in under 2 seconds">
+                <div class="badge-emoji-box">⚡</div>
+                <div class="badge-info">
+                  <strong>Speed Demon</strong>
+                  <span>Sub-2.0s Lockdowns</span>
+                </div>
+              </div>
+
+              <div class="badge-item" title="Answered 10 consecutive questions correctly">
+                <div class="badge-emoji-box">🔥</div>
+                <div class="badge-info">
+                  <strong>Flame Master</strong>
+                  <span>10+ Answer Streak</span>
+                </div>
+              </div>
+
+              <div class="badge-item" title="Achieved Top 3 in a 50 player battle">
+                <div class="badge-emoji-box">👑</div>
+                <div class="badge-info">
+                  <strong>Campus Elite</strong>
+                  <span>Top 3 Finish</span>
+                </div>
+              </div>
+
+              <div class="badge-item" title="Perfect 100% score in Quantitative section">
+                <div class="badge-emoji-box">🎯</div>
+                <div class="badge-info">
+                  <strong>Math Prodigy</strong>
+                  <span>100% Quant Accuracy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================ -->
+  <!-- MODAL 1: JOIN LIVE QUIZ ROOM MODAL -->
+  <!-- ================================================================ -->
+  <div class="modal-overlay hidden" id="modal-join-room" role="dialog" aria-modal="true">
+    <div class="modal-card card-glass">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🎮</span>
+          <h3>Join Live Multiplayer Arena</h3>
+        </div>
+        <button class="btn-close-modal" id="btn-close-join-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-sub">Enter the room code shared by your campus host or jump into an active public battle.</p>
+
+        <div class="form-group">
+          <label for="input-room-code">Enter 6-Digit Room Code</label>
+          <div class="input-with-button">
+            <input type="text" id="input-room-code" placeholder="e.g. APTI-7489" maxlength="12" uppercase>
+            <button class="btn-paste-code" id="btn-quick-fill-code">Use Active Code</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-player-name">Your Player Nickname</label>
+          <input type="text" id="input-player-name" value="Alex Verma (You)" placeholder="Your Name">
+        </div>
+
+        <div class="form-group">
+          <label for="input-player-college">Your Campus / College</label>
+          <input type="text" id="input-player-college" value="IIT Bombay" placeholder="College Name">
+        </div>
+
+        <div class="featured-rooms-list">
+          <span class="featured-label">Active Campus Battle Rooms:</span>
+          <div class="room-chip-options">
+            <button class="chip-choice-btn active" data-room="APTI-7489">APTI-7489 (38 Players • Starting Now)</button>
+            <button class="chip-choice-btn" data-room="APTI-9012">APTI-9012 (26 Players • Quant Arena)</button>
+            <button class="chip-choice-btn" data-room="APTI-4321">APTI-4321 (44 Players • Campus Cup)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-join">Cancel</button>
+        <button class="btn-primary" id="btn-confirm-join">
+          <span>Enter Battle Lobby</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- MODAL 2: CREATE LIVE ROOM MODAL -->
+  <!-- ================================================================ -->
+  <div class="modal-overlay hidden" id="modal-create-room" role="dialog" aria-modal="true">
+    <div class="modal-card card-glass">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🛠️</span>
+          <h3>Host a Live Quiz Room</h3>
+        </div>
+        <button class="btn-close-modal" id="btn-close-create-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-sub">Generate a new battle arena and invite campus classmates to compete simultaneously.</p>
+
+        <div class="room-created-banner">
+          <span class="rc-label">NEW ROOM CODE GENERATED</span>
+          <div class="rc-code-box">
+            <span class="rc-code" id="modal-created-code">APTI-8832</span>
+            <button class="btn-copy-code small" id="btn-copy-modal-code">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Select Battle Category</label>
+          <select id="create-select-category" class="custom-select">
+            <option value="All">All-Rounder Aptitude Arena (Mixed 10 Qs)</option>
+            <option value="Quantitative Aptitude">Quantitative Aptitude</option>
+            <option value="Logical Reasoning">Logical Reasoning</option>
+            <option value="Data Interpretation">Data Interpretation</option>
+            <option value="Verbal Ability">Verbal Ability</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Question Timer Limit</label>
+          <div class="timer-radio-group">
+            <label class="timer-radio-pill active"><input type="radio" name="timer-dur" value="10" checked> 10 Seconds (Standard Hackathon)</label>
+            <label class="timer-radio-pill"><input type="radio" name="timer-dur" value="15"> 15 Seconds (Relaxed)</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Max Player Capacity: <span id="capacity-val" class="text-cyan">50 Players</span></label>
+          <input type="range" id="capacity-slider" min="10" max="100" step="5" value="50" class="custom-range">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-create">Cancel</button>
+        <button class="btn-primary" id="btn-launch-created-room">
+          <span>Launch Battle Room</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Main Engine -->
+  <script src="script.js"></script>
+</body>
+</html>
